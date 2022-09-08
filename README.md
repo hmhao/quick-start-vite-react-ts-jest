@@ -28,13 +28,17 @@ yarn test;
 用于测试的主文件。
 
 主要测试文件:
+
 - `src/__tests__/App.test.jsx`
 
 模拟图像等:
+
 - `test/__mocks__/fileMock.js`
 
 jest 配置文件
+
 - `jest.config.ts`
 
 扩展 jest 的设置文件
+
 - `jest.setup.ts`
