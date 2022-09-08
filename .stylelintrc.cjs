@@ -8,15 +8,4 @@ module.exports = {
     'alpha-value-notation': 'number', // 用数字表示alpha的值
     'color-function-notation': 'legacy', // 颜色函数使用旧版表示法
   },
-  ignoreFiles: [
-    '/dist/*',
-    'public/*',
-    '*.js',
-    '*.ts',
-    '*.png',
-    '*.jpg',
-    '*.webp',
-    '*.ttf',
-    '*.woff',
-  ],
 };
