@@ -8,12 +8,17 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test": "jest",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx --fix --quiet ./",
+    "lint:eslint": "eslint --ext .js,.jsx,.ts,.tsx --fix --quiet ./",
+    "lint:stylelint": "stylelint --fix \"**/*.{css,postcss,less,scss,sass}\"",
+    "lint": "npm run lint:eslint && npm run lint:stylelint",
     "prepare": "husky install"
   },
   "lint-staged": {
     "*.{js,jsx,tsx,ts}": [
-      "npm run lint"
+      "npm run lint:eslint"
+    ],
+    "*.{css,postcss,less,scss,sass}": [
+      "npm run lint:stylelint"
     ]
   },
   "dependencies": {
@@ -44,6 +49,9 @@
     "postcss-nested": "^5.0.6",
     "postcss-preset-env": "^7.8.1",
     "prettier": "^2.7.1",
+    "stylelint": "^14.11.0",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-standard": "^28.0.0",
     "ts-jest": "^28.0.6",
     "ts-node": "^10.9.1",
     "typescript": "^4.6.4",
