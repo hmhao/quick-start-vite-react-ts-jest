@@ -29,6 +29,14 @@ export const getScanName = (options: Options) => {
   return options.templateName;
 };
 
+export const getFirstPage = (pages: Record<string, string>) => {
+  const paths = Object.keys(pages);
+  if (paths.includes('/index')) {
+    return '/index';
+  }
+  return paths[0];
+};
+
 export const templateCompile = (
   str: string,
   params: ReplaceParams,

@@ -4,7 +4,8 @@
     "lib": ["ES2022"],
     "module": "ESNext",
     "moduleResolution": "Node",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "downlevelIteration": true
   },
   "include": ["vite.config.ts", "scripts"]
 }

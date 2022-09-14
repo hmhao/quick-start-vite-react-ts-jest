@@ -17,7 +17,7 @@ import {
   watchDir,
 } from './service';
 import { defaultOptions, Options } from './types';
-import { routesMap } from './utils';
+import { getFirstPage, routesMap } from './utils';
 
 export default function VitePluginFileSystemMultiPagesApp(
   options?: Options,
@@ -33,6 +33,20 @@ export default function VitePluginFileSystemMultiPagesApp(
     name: 'vite-plugin-fmpa',
     config(config: UserConfig) {
       scanDir(mergedOptions);
+
+      config.server = config.server || {};
+      config.server.open =
+        mergedOptions.open === true
+          ? getFirstPage(
+              [...routesMap.entries()].reduce(
+                (
+                  obj: Record<string, string>,
+                  [key, value]: [string, string],
+                ) => ((obj[key] = value), obj),
+                {},
+              ),
+            )
+          : mergedOptions.open;
     },
     configResolved(resolvedConfig: ResolvedConfig) {
       config = resolvedConfig;

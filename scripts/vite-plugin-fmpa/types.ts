@@ -7,20 +7,26 @@ export type Options = Partial<ResolvedOptions>;
 
 export interface ResolvedOptions {
   /**
+   * 打开路径 viteDevServer
+   * 尝试打开(第一个)页面，可以自定义，例如/index#/about
+   * @default true firstPagePath
+   */
+  open: string | boolean;
+  /**
    * 开始扫描的目录, 也就是文件系统的根目录，插件会扫描目录中内容配置相关构建和路由中间件
    * 路径是相对于vite.config的root
-   * 默认路径: 'src/pages'
+   * @default 'src/pages'
    */
   dir: string;
   /**
    * 入口 html 文件名， 如果不配置 publicTemplateSrc 那么根目录和每个子目录都需要一个 html 作为入口
-   * 默认文件名: 'index.html'
+   * @default 'index.html'
    */
   templateName: string;
   /**
    * 入口 js 文件名，自动注入到 html 中
    * 在 all-in-one template 模式，若目录下此文件存在, 此目录会被识别为有效的页面, 并生成路由配置
-   * 默认文件名: 'main.ts'
+   * @default 'main.ts'
    */
   entry: string;
   /**
@@ -41,6 +47,7 @@ export interface ResolvedOptions {
 }
 
 export const defaultOptions = {
+  open: true,
   dir: 'src/pages',
   templateName: 'index.html',
   entry: 'main.ts',
