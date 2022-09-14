@@ -19,26 +19,21 @@ export const scanDir = (mergedOptions: ResolvedOptions, sourceUrl?: string) => {
   if (!sourceUrl) {
     sourceUrl = mergedOptions.dir;
   }
-  fs.readdir(sourceUrl, (err: ErrnoException | null, files: string[]) => {
-    // 解析文件类型，如果是目录则继续向目录内遍历
-    // console.log(scanName, files);
-    for (const key of files) {
-      if (key === scanName) {
-        const mapKey = sourceUrl.replace(mergedOptions.dir, '') || '/';
-        routesMap.set(mapKey, path.posix.join(sourceUrl, scanName));
-        // console.log('mapkey:', mapKey)
-        // console.log('mapsource:', routesMap.get(mapKey))
-      }
-      fs.stat(
-        path.resolve(sourceUrl, key),
-        (_err: ErrnoException | null, stat: fs.Stats) => {
-          if (stat.isDirectory()) {
-            scanDir(mergedOptions, path.posix.join(sourceUrl, `${key}`));
-          }
-        },
-      );
+  const files = fs.readdirSync(sourceUrl);
+  // 解析文件类型，如果是目录则继续向目录内遍历
+  // console.log(scanName, files);
+  for (const key of files) {
+    if (key === scanName) {
+      const mapKey = sourceUrl.replace(mergedOptions.dir, '') || '/';
+      routesMap.set(mapKey, path.posix.join(sourceUrl, scanName));
+      // console.log('mapkey:', mapKey)
+      // console.log('mapsource:', routesMap.get(mapKey))
     }
-  });
+    const stat = fs.statSync(path.resolve(sourceUrl, key));
+    if (stat.isDirectory()) {
+      scanDir(mergedOptions, path.posix.join(sourceUrl, `${key}`));
+    }
+  }
 };
 
 export function watchDir(mergedOptions: ResolvedOptions) {
