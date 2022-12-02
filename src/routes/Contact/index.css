@@ -1,0 +1,79 @@
+#contact {
+  max-width: 40rem;
+  display: flex;
+
+  h1 {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.2;
+
+    &:focus {
+      outline: none;
+      color: hsl(224deg, 98%, 58%);
+    }
+
+    & + p {
+      margin: 0;
+
+      & + p {
+        white-space: break-spaces;
+      }
+    }
+
+    & ~ div {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+
+    form {
+      display: flex;
+      align-items: center;
+      margin-top: 0.25rem;
+
+      button {
+        box-shadow: none;
+        font-size: 1.5rem;
+        font-weight: 400;
+        padding: 0;
+
+        &[value='true'] {
+          color: #a4a4a4;
+        }
+
+        &[value='true']:hover,
+        &[value='false'] {
+          color: #eeb004;
+        }
+      }
+    }
+  }
+
+  form[action$='destroy'] button {
+    color: #f44250;
+  }
+
+  a[href*='twitter'] {
+    display: flex;
+    font-size: 1.5rem;
+    color: #3992ff;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  img {
+    width: 12rem;
+    height: 12rem;
+    background: #c8c8c8;
+    margin-right: 2rem;
+    border-radius: 1.5rem;
+    object-fit: cover;
+  }
+}
