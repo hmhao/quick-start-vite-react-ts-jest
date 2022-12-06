@@ -56,7 +56,7 @@ const Contact: FC = () => {
   return (
     <div id="contact">
       <div>
-        <img key={contact.avatar} src={contact.avatar} />
+        <img key={contact.avatar} src={contact.avatar} aria-label="avatar" />
       </div>
 
       <div>
