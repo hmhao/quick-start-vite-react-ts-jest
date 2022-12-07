@@ -14,7 +14,7 @@ import { action as destroyAction } from '@/routes/Destroy';
 import Index from '@/routes/Index';
 import './App.css';
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
   {
     path: '/',
     element: <Root />,

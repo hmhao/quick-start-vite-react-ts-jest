@@ -1,15 +1,57 @@
 // Imports
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import user from '@testing-library/user-event';
 import { matchPath } from 'react-router-dom';
+import {
+  getContact,
+  getContacts,
+  createContact,
+  updateContact,
+  deleteContact,
+  initContacts,
+  clearContacts,
+} from '@/services/contacts';
 
 // To Test
-import App from '../App';
+import App, { router } from '../App';
 
 // Mock
 jest.mock('localforage', () => ({
   default: { ...jest.requireActual('localforage') },
 }));
+
+// Tests
+test('Contacts actions', async () => {
+  expect(await getContacts()).toEqual([]);
+  const contact = await createContact();
+  expect(contact).toMatchObject({
+    id: expect.any(String),
+    createdAt: expect.any(Number),
+  });
+  const updatedContact = await updateContact(contact.id, {
+    first: 'H',
+    last: 'C',
+    twitter: 'tt',
+    avatar: 'https://placekitten.com/g/200/200',
+    notes: 'Hello, \nWorld!',
+  });
+  expect(updatedContact).toEqual({
+    id: contact.id,
+    createdAt: contact.createdAt,
+    first: 'H',
+    last: 'C',
+    twitter: 'tt',
+    avatar: 'https://placekitten.com/g/200/200',
+    notes: 'Hello, \nWorld!',
+  });
+  expect(await getContact(contact.id)).toEqual(updatedContact);
+  expect(await deleteContact(contact.id)).toBe(true);
+  expect(await getContacts()).toEqual([]);
+  await initContacts(5);
+  expect((await getContacts()).length).toBe(5);
+  await clearContacts();
+  expect((await getContacts()).length).toBe(0);
+});
 
 test('Renders main page correctly', async () => {
   // Setup
@@ -28,7 +70,6 @@ test('Renders main page correctly', async () => {
   ).toBeInTheDocument();
 });
 
-// Tests
 test('Renders main page correctly', async () => {
   // Setup
   render(<App />);
@@ -44,7 +85,7 @@ test('Renders main page correctly', async () => {
   ).toBeInTheDocument();
 });
 
-describe('Renders Edit page correctly', () => {
+describe('Renders edit page correctly', () => {
   beforeEach(async () => {
     // Setup
     render(<App />);
@@ -63,7 +104,13 @@ describe('Renders Edit page correctly', () => {
     );
   });
 
-  test('Navigate route and navigate back correctly', async () => {
+  afterEach(async () => {
+    await clearContacts();
+    // Manual trigger route rerender
+    await act(() => router.navigate('/', { replace: true }));
+  });
+
+  test('Navigate edit page and navigate back correctly', async () => {
     // Verify page content for expected route after navigating
     // sidebar content
     expect(screen.getByRole('link', { name: 'No Name' })).toBeInTheDocument();
@@ -140,5 +187,119 @@ describe('Renders Edit page correctly', () => {
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+});
+
+describe('Renders contact page with data correctly', () => {
+  let index = 0;
+  let contacts: Contact[];
+  beforeAll(async () => {
+    await initContacts(2);
+    contacts = await getContacts();
+  });
+
+  beforeEach(async () => {
+    // Setup
+    render(<App />);
+    // Manual trigger route rerender
+    await act(() => router.navigate('/', { replace: true }));
+    await Promise.all(
+      contacts.map(async (contact) =>
+        expect(
+          await screen.findByRole('link', {
+            name: `${contact.first} ${contact.last}`,
+          }),
+        ).toBeInTheDocument(),
+      ),
+    );
+    const contact = contacts[index];
+    // Navigate contact route
+    await user.click(
+      await screen.findByRole('link', {
+        name: `${contact.first} ${contact.last}`,
+      }),
+    );
+    // Wait for edit route render
+    await waitFor(
+      () =>
+        // Verify route pathname
+        expect(
+          matchPath('contacts/:contactId', window.location.pathname),
+        ).toBeTruthy(),
+      {
+        timeout: 2000,
+      },
+    );
+  });
+
+  afterEach(() => {
+    index++;
+  });
+
+  test('Navigate contact page correctly', async () => {
+    const contact = contacts[index];
+    // Verify page content for expected route after navigating
+    // sidebar content
+    expect(
+      screen.getByRole('link', { name: `${contact.first} ${contact.last}` }),
+    ).toBeInTheDocument();
+    // detail content
+    expect(
+      screen.getByRole('heading', {
+        name: `${contact.first} ${contact.last} ☆`,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: contact.twitter }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'avatar' })).toBeInTheDocument();
+    expect(
+      screen.getByText((content) => content === contact.notes),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+  });
+
+  test('Favorite contact correctly', async () => {
+    const contact = contacts[index];
+    // Add to favorites
+    await user.click(await screen.findByText('☆', { selector: 'button' }));
+    // Wait for change contact favorite
+    expect(
+      await screen.findByRole(
+        'link',
+        {
+          name: `${contact.first} ${contact.last} ★`,
+        },
+        {
+          timeout: 2000,
+        },
+      ),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', {
+        name: `${contact.first} ${contact.last} ★`,
+      }),
+    ).toBeInTheDocument();
+
+    // Remove from favorites
+    await user.click(await screen.findByText('★', { selector: 'button' }));
+    // Wait for change contact favorite
+    expect(
+      await screen.findByRole(
+        'link',
+        {
+          name: `${contact.first} ${contact.last}`,
+        },
+        {
+          timeout: 2000,
+        },
+      ),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', {
+        name: `${contact.first} ${contact.last} ☆`,
+      }),
+    ).toBeInTheDocument();
   });
 });

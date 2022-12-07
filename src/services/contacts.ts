@@ -20,6 +20,28 @@ const fakeNetwork = async (key = '') => {
 
 const ContactsKey = 'contacts';
 
+export const initContacts = async (len: number) => {
+  const contacts = await Promise.all(
+    Array(len)
+      .fill('')
+      .map(async (item, index) => ({
+        id: Math.random().toString(36).substring(2, 9),
+        createdAt: Date.now() + index,
+        first: `H${index}`,
+        last: `C${index}`,
+        twitter: `tt${index}`,
+        avatar: `https://placekitten.com/g/200/20${index}`,
+        notes: `${index}`,
+        favorite: false,
+      })),
+  );
+  await localforage.setItem(ContactsKey, contacts);
+};
+
+export const clearContacts = async () => {
+  await localforage.setItem(ContactsKey, []);
+};
+
 export const getContacts = async (query?: string) => {
   await fakeNetwork(`getContacts:${query}`);
   let contacts = (await localforage.getItem<Contact[]>(ContactsKey)) ?? [];

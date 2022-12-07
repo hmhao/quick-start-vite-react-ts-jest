@@ -21,9 +21,14 @@ const Favorite: FC<FavoriteProps> = ({ contact }: FavoriteProps) => {
   }
   return (
     <fetcher.Form method="post">
-      <button
+      <input
         name="favorite"
         value={favorite ? 'false' : 'true'}
+        readOnly
+        hidden
+      />
+      <button
+        type="submit"
         aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
       >
         {favorite ? '★' : '☆'}
