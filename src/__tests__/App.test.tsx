@@ -236,6 +236,10 @@ describe('Renders contact page with data correctly', () => {
     index++;
   });
 
+  afterAll(async () => {
+    await clearContacts();
+  });
+
   test('Navigate contact page correctly', async () => {
     const contact = contacts[index];
     // Verify page content for expected route after navigating
@@ -301,5 +305,76 @@ describe('Renders contact page with data correctly', () => {
         name: `${contact.first} ${contact.last} ☆`,
       }),
     ).toBeInTheDocument();
+  });
+});
+
+describe('Render default search at sidebar with searchParams q', () => {
+  let contacts: Contact[];
+  beforeAll(async () => {
+    await initContacts(2);
+    contacts = await getContacts();
+  });
+
+  afterAll(async () => {
+    await clearContacts();
+  });
+
+  test('q is empty string', async () => {
+    render(<App />);
+    // Manual trigger route rerender
+    await act(() =>
+      router.navigate(
+        {
+          pathname: '/',
+          search: 'q=',
+        },
+        { replace: true },
+      ),
+    );
+    // expect render 2 contact at sidebar
+    await Promise.all(
+      contacts.map(async (contact) =>
+        expect(
+          await screen.findByRole('link', {
+            name: `${contact.first} ${contact.last}`,
+          }),
+        ).toBeInTheDocument(),
+      ),
+    );
+  });
+
+  test('q is not match contacts', async () => {
+    render(<App />);
+    // Manual trigger route rerender
+    await act(() =>
+      router.navigate(
+        {
+          pathname: '/',
+          search: `q=${contacts[0].first + 'q'}`,
+        },
+        { replace: true },
+      ),
+    );
+    expect(screen.getByText('No contacts')).toBeInTheDocument();
+  });
+
+  test('q is match one contact', async () => {
+    render(<App />);
+    // Manual trigger route rerender
+    await act(() =>
+      router.navigate(
+        {
+          pathname: '/',
+          search: `q=${contacts[0].first.slice(1, 3)}`,
+        },
+        { replace: true },
+      ),
+    );
+    expect(
+      screen.getByRole('link', {
+        name: `${contacts[0].first} ${contacts[0].last}`,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('listitem').length).toBe(1);
   });
 });
